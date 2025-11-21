@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden; /* Prevent scrolling during animation */
+        }
+        
+        .handwriting {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* Gift Box Animation */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            50% { transform: rotate(0eg); }
+            75% { transform: rotate(-5deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .shake-hover:hover {
+            animation: shake 0.5s ease-in-out infinite;
+            cursor: pointer;
+        }
+
+        /* Reveal Animations */
+        .reveal-content {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .reveal-content.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Balloon Animations */
+        .balloon {
+            position: absolute;
+            bottom: -100px;
+            opacity: 0.9;
+            border-radius: 50%;
+            animation: riseUp 10s ease-in infinite;
+        }
+        
+        .balloon::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            width: 2px;
+            height: 30px;
+            background: rgba(255,255,255,0.6);
+            transform: translateX(-50%);
+        }
+
+        @keyframes riseUp {
+            0% { bottom: -100px; transform: translateX(0) rotate(0deg); }
+            50% { transform: translateX(20px) rotate(5deg); }
+            100% { bottom: 120vh; transform: translateX(-20px) rotate(-5deg); }
+        }
+
+        /* Gradient Background Animation */
+        .bg-animated {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body class="bg-animated h-screen w-screen flex items-center justify-center relative">
+
+    <!-- Canvas for Confetti -->
+    <canvas id="confetti-canvas" class="absolute top-0 left-0 w-full h-full pointer-events-none z-50"></canvas>
+
+    <!-- Intro Screen (Gift Box) -->
+    <div id="intro-screen" class="z-40 text-center transition-opacity duration-500">
+        <div class="text-white mb-8 text-2xl font-semibold tracking-wider uppercase">
+            A Surprise For You
+        </div>
+        
+        <div id="gift-box" class="floating shake-hover relative inline-block group">
+            <!-- Gift Box Icon -->
+            <div class="relative text-[150px] text-yellow-400 drop-shadow-2xl transition-transform transform group-hover:scale-110">
+                <i class="fas fa-gift"></i>
+            </div>
+            <div class="mt-6 px-6 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white font-bold border-2 border-white/50 animate-pulse">
+                Click to Open
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Birthday Card Content (Hidden initially) -->
+    <div id="main-card" class="reveal-content hidden z-40 max-w-md w-full mx-4">
+        <div class="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden p-8 text-center relative border-4 border-pink-200">
+            
+            <!-- Decorative Badge -->
+            <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-2 rounded-full shadow-lg">
+                <i class="fas fa-crown text-yellow-300 mr-2"></i> Special Day
+            </div>
+
+            <!-- Cake Icon -->
+            <div class="mt-6 mb-4 text-6xl text-pink-500">
+                <i class="fas fa-birthday-cake bounce-icon"></i>
+            </div>
+
+            <!-- Headline -->
+            <h1 class="handwriting text-6xl text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-2">
+                Happy Birthday!
+            </h1>
+
+            <!-- Customizable Name -->
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                My Dearest Friend
+            </h2>
+
+            <!-- Message Body -->
+            <p class="text-gray-600 leading-relaxed mb-8">
+                Wishing you a day filled with love, laughter, and all your favorite things. 
+                May this year bring you endless adventures and happiness. You deserve it all!
+            </p>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-center gap-4">
+                <button onclick="replayConfetti()" class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2 rounded-full transition-colors shadow-md flex items-center">
+                    <i class="fas fa-magic mr-2"></i> Celebrate Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Music Control (Optional visual representation) -->
+    <div class="absolute bottom-5 right-5 z-50 opacity-50 hover:opacity-100 transition-opacity">
+        <div class="text-white text-xs mb-1 text-center">Built with ❤️</div>
+    </div>
+
+    <!-- Balloons Container -->
+    <div id="balloons-container" class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-10 hidden">
+        <!-- Balloons injected by JS -->
+    </div>
+
+    <script>
+        // Configuration
+        const giftBox = document.getElementById('gift-box');
+        const introScreen = document.getElementById('intro-screen');
+        const mainCard = document.getElementById('main-card');
+        const balloonsContainer = document.getElementById('balloons-container');
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let confetti = [];
+        let animationId;
+
+        // Resize canvas
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Interaction Logic
+        giftBox.addEventListener('click', () => {
+            // Fade out intro
+            introScreen.style.opacity = '0';
+            setTimeout(() => {
+                introScreen.style.display = 'none';
+                introScreen.classList.remove('flex');
+                
+                // Show Main Card
+                mainCard.classList.remove('hidden');
+                // Small delay to allow display:block to apply before adding active class for transition
+                setTimeout(() => {
+                    mainCard.classList.add('active');
+                }, 50);
+
+                // Start Effects
+                startCelebration();
+            }, 500);
+        });
+
+        function startCelebration() {
+            // Show balloons
+            balloonsContainer.classList.remove('hidden');
+            createBalloons();
+            
+            // Start Confetti
+            initConfetti();
+            animateConfetti();
+        }
+
+        function replayConfetti() {
+            confetti = []; // Clear existing
+            initConfetti(); // Add new burst
+        }
+
+        // Balloon Logic
+        function createBalloons() {
+            const balloonColors = ['#FF69B4', '#87CEEB', '#FFA500', '#98FB98', '#DDA0DD'];
+            const balloonCount = 15;
+
+            for (let i = 0; i < balloonCount; i++) {
+                const balloon = document.createElement('div');
+                balloon.classList.add('balloon');
+                
+                // Random properties
+                const color = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+                const left = Math.random() * 100;
+                const animDuration = 10 + Math.random() * 10;
+                const delay = Math.random() * 5;
+                const size = 40 + Math.random() * 40;
+
+                balloon.style.backgroundColor = color;
+                balloon.style.left = `${left}%`;
+                balloon.style.width = `${size}px`;
+                balloon.style.height = `${size * 1.2}px`;
+                balloon.style.animationDuration = `${animDuration}s`;
+                balloon.style.animationDelay = `${delay}s`;
+                balloon.style.boxShadow = `inset -10px -10px 0 rgba(0,0,0,0.1)`;
+
+                balloonsContainer.appendChild(balloon);
+            }
+        }
+
+        // Confetti Logic
+        function initConfetti() {
+            const particleCount = 150;
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff'];
+
+            for (let i = 0; i < particleCount; i++) {
+                confetti.push({
+                    x: window.innerWidth / 2,
+                    y: window.innerHeight / 2, // Start from center
+                    w: Math.random() * 10 + 5,
+                    h: Math.random() * 5 + 5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    vx: (Math.random() - 0.5) * 20, // Velocity X
+                    vy: (Math.random() - 0.5) * 20 - 5, // Velocity Y (upward bias)
+                    grav: 0.2,
+                    drag: 0.96
+                });
+            }
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            confetti.forEach((p, index) => {
+                // Update
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += p.grav;
+                p.vx *= p.drag;
+                p.vy *= p.drag;
+
+                // Draw
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.w, p.h);
+
+                // Remove if off screen
+                if (p.y > canvas.height) {
+                    confetti.splice(index, 1);
+                }
+            });
+
+            if (confetti.length > 0) {
+                animationId = requestAnimationFrame(animateConfetti);
+            }
+        }
+    </script>
+</body>
+</html>
